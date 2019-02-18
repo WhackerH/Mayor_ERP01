@@ -177,7 +177,7 @@ function main()
 	summabind = rkeys.registerHotKey(config_keys.summakey.v, true, summakeyk)
 	freenalbind = rkeys.registerHotKey(config_keys.freenalkey.v, true, freenalkeyk)
 	freebankbind = rkeys.registerHotKey(config_keys.freebankkey.v, true, freebankkeyk)
-	--autoupdate(json_url, prefix, url)
+	autoupdate("https://github.com/WhackerH/Mayor_ERP01/raw/master/mayorhelper.luac", '[Mayor Helper]', "https://evolve-rp.su/viewtopic.php?f=21&t=151439")
 	while true do wait(0)
 		imgui.Process = mainwin.v
 	end
