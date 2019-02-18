@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('1.4')
+script_version('2')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
