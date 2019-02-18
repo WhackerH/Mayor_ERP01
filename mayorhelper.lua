@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('2')
+script_version('3')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -24,7 +24,9 @@ config_keys ={
 config = {
 	main = {
 		clist = 0,
-		clistb = false
+		clistb = false,
+		passb = false,
+		pass = 'pass'
 	}
 }
 function autoupdate(json_url, prefix, url)
