@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('1.3')
+script_version('1.4')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -14,7 +14,7 @@ mainwin = imgui.ImBool(false)
 local clistb = imgui.ImBool(false)
 local clistint = imgui.ImInt(0)
 tLastKeys = {}
-ooplistt = {'дело на имя Thomas Lawson рассмотрению не подлежит, ООП'}
+ooplistt = {}
 config_keys ={
 	hikey = {v = {key.VK_I}},
 	summakey = {v = {key.VK_L}},
@@ -224,9 +224,9 @@ function imgui.OnDrawFrame()
 end
 function hikeyk()
 	lua_thread.create(function()
-		SCM(string.format('Приветствую, я адвокат %s. Кто нуждается в моих услугах?', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')))
+		sampSendChat(string.format('Приветствую, я адвокат %s. Кто нуждается в моих услугах?', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')))
 		wait(1200)
-		SCM(string.format('/b /showpass %s', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
+		sampSendChat(string.format('/b /showpass %s', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
 	end)
 end
 function summakeyk()
@@ -236,9 +236,9 @@ function summakeyk()
 			local result, tid = sampGetPlayerIdByCharHandle(tped)
 			if result then
 				local tlvl = sampGetPlayerScore(tid)
-				SCM(string.format('Сумма вашего вызволения составляет %s.', getFreeCost(tlvl)))
+				sampSendChat(string.format('Сумма вашего вызволения составляет %s.', getFreeCost(tlvl)))
 				wait(1200)
-				SCM('Чем желаете оплатить, банком или наличными?')
+				sampSendChat('Чем желаете оплатить, банком или наличными?')
 			end
 		end
 	end)
@@ -250,11 +250,11 @@ function freenalkeyk()
 			local result, tid = sampGetPlayerIdByCharHandle(tped)
 			if result then
 				local tlvl = sampGetPlayerScore(tid)
-				SCM('/me достал бланк из кейса и начал его заполнять')
+				sampSendChat('/me достал бланк из кейса и начал его заполнять')
 				wait(1200)
-				SCM('/me поставил печать в бланке и передал заключенному')
+				sampSendChat('/me поставил печать в бланке и передал заключенному')
 				wait(1200)
-				SCM(string.format('/free %s 1 %s', tid, getFreeCost(tlvl)))
+				sampSendChat(string.format('/free %s 1 %s', tid, getFreeCost(tlvl)))
 			end
 		end
 	end)
@@ -266,11 +266,11 @@ function freebankkeyk()
 			local result, tid = sampGetPlayerIdByCharHandle(tped)
 			if result then
 				local tlvl = sampGetPlayerScore(tid)
-				SCM('/me достал бланк из кейса и начал его заполнять')
+				sampSendChat('/me достал бланк из кейса и начал его заполнять')
 				wait(1200)
-				SCM('/me поставил печать в бланке и передал заключенному')
+				sampSendChat('/me поставил печать в бланке и передал заключенному')
 				wait(1200)
-				SCM(string.format('/free %s 2 %s', tid, getFreeCost(tlvl)))
+				sampSendChat(string.format('/free %s 2 %s', tid, getFreeCost(tlvl)))
 			end
 		end
 	end)
