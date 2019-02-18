@@ -1,11 +1,12 @@
 script_name('Mayor Helper')
-script_version('1')
+script_version('1.1')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
 imgui = require 'imgui'
 imadd = require 'imgui_addons'
 sp = require 'lib.samp.events'
+inicfg = require 'inicfg'
 encoding = require 'encoding'
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
@@ -19,6 +20,12 @@ config_keys ={
 	summakey = {v = {key.VK_L}},
 	freenalkey = {v = {key.VK_Y}},
 	freebankkey = {v = {key.VK_U}}
+}
+config = {
+	main = {
+		clist = 0,
+		clistb = false
+	}
 }
 function autoupdate(json_url, prefix, url)
   local dlstatus = require('moonloader').download_status
@@ -170,6 +177,9 @@ end
 function main()
 	while not isSampAvailable() do wait(0) end
 	SCM('Mayor Helper для Evolve RP 01 успешно загружен')
+	if not doesDirectoryExist('moonloader\\config') then createDirectory('moonloader\\config') end
+	if not doesDirectoryExist('moonloader\\config\\Mayor Helper') then createDirectory('moonloader\\config\\Mayor Helper') end
+	cfg = inicfg.load(config, 'Mayor Helper\\config.ini')
 	sampRegisterChatCommand('mhe', function() mainwin.v = not mainwin.v end)
 	sampRegisterChatCommand('ooplist', ooplist)
 	apply_custom_style()
@@ -201,10 +211,10 @@ function imgui.OnDrawFrame()
 		imgui.EndChild()
 		imgui.SameLine()
 		imgui.BeginChild('##2', imgui.ImVec2(300, 150), true)
-		imgui.Checkbox(u8 'Использовать автоклист', clistb)
+		if imgui.Checkbox(u8 'Использовать автоклист', clistb) then cfg.main.clistb = clistb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
 		if clistb.v then
 			imgui.PushItemWidth(50)
-			imgui.InputInt(u8 'Номер цвета', clistint, 0)
+			if imgui.InputInt(u8 'Номер цвета', clistint, 0) then cfg.main.clist = clistint.v inicfg.save(config, 'Mayor Helper\\config.ini') end
 			imgui.PopItemWidth()
 		end
 		imgui.EndChild()
