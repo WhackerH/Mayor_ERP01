@@ -24,7 +24,8 @@ config = {
 		clist = 0,
 		clistb = false,
 		passb = false,
-		pass = 'pass'
+		pass = 'pass',
+		colormb = false
 	}
 }
 function autoupdate(json_url, prefix, url)
@@ -230,6 +231,20 @@ function sp.onServerMessage(color, text)
     if text:find('Рабочий день окончен') and color ~= -1 then
         rabden = false
     end
+	if cfg.main.colormb then
+		if text:match('ID: .+ | .+: .+ %- .+') and color == 479068104 then
+	        local id, nick, rang, stat = text:match('ID: (%d+) | (.+): (.+) %- (.+)')
+	        local color = ("%06X"):format(bit.band(sampGetPlayerColor(id), 0xFFFFFF))
+	        local color = string.format('0x'..color..'AA')
+	        return {color, text}
+	    end
+	    if text:match('ID: .+ | .+: .+') and color == 479068104 then
+	        local id, nick, rang = text:match('ID: (%d+) | (.+): (.-)')
+	        local color = ("%06X"):format(bit.band(sampGetPlayerColor(id), 0xFFFFFF))
+	        local color = string.format('0x'..color..'AA')
+	        return {color, text}
+	    end
+	end
 end
 function sp.onSendSpawn()
     if cfg.main.clistb and rabden then
