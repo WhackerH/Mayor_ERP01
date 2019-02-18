@@ -11,6 +11,7 @@ encoding = require 'encoding'
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
 mainwin = imgui.ImBool(false)
+cmdwin = imgui.ImBool(false)
 tLastKeys = {}
 ooplistt = {}
 config_keys ={
@@ -177,7 +178,7 @@ function getFreeCost(lvl)
 end
 function main()
 	while not isSampAvailable() do wait(0) end
-	SCM('Mayor Helper для Evolve RP 01 успешно загружен')
+	SCM('Mayor Helper для {ae433d}Evolve RP 01 {ffffff}успешно загружен')
 	if not doesDirectoryExist('moonloader\\config') then createDirectory('moonloader\\config') end
 	if not doesDirectoryExist('moonloader\\config\\Mayor Helper') then createDirectory('moonloader\\config\\Mayor Helper') end
 	cfg = inicfg.load(config, 'Mayor Helper\\config.ini')
@@ -192,6 +193,7 @@ function main()
 	end
 	sampRegisterChatCommand('mhe', function() mainwin.v = not mainwin.v end)
 	sampRegisterChatCommand('ooplist', ooplist)
+	sampRegisterChatCommand('g', gov)
 	apply_custom_style()
 	lua_thread.create(oopCheckDialog)
 	hibind = rkeys.registerHotKey(config_keys.hikey.v, true, hikeyk)
@@ -263,21 +265,24 @@ function sp.onShowDialog(id, style, title, button1, button2, text)
 end
 function imgui.OnDrawFrame()
 	if mainwin.v then
+		imgui.LockPlayer = true
 		local clistbb = imgui.ImBool(cfg.main.clistb)
 		local clistint = imgui.ImInt(cfg.main.clist)
 		local passbb = imgui.ImBool(cfg.main.passb)
+		local cvetmbb = imgui.ImBool(cfg.main.colormb)
 		local passbuff = imgui.ImBuffer(u8(cfg.main.pass), 256)
 		local iScreenWidth, iScreenHeight = getScreenResolution()
 		imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
 		imgui.Begin('Mayor Helper', mainwin, imgui.WindowFlags.NoResize)
-		imgui.BeginChild('##1', imgui.ImVec2(260, 150), true)
+		imgui.BeginChild('##1', imgui.ImVec2(260, 110), true)
 		if imadd.HotKey('##hik', config_keys.hikey, tLastKeys, 100) then rkeys.changeHotKey(hibind, config_keys.hikey.v) end imgui.SameLine() imgui.Text(u8 'Приветствие')
 		if imadd.HotKey('##sumk', config_keys.summakey, tLastKeys, 100) then rkeys.changeHotKey(summabind, config_keys.summakey.v) end imgui.SameLine() imgui.Text(u8 'Огласить сумму')
 		if imadd.HotKey('##freenk', config_keys.freenalkey, tLastKeys, 100) then rkeys.changeHotKey(freenalbind, config_keys.freenalkey.v) end imgui.SameLine() imgui.Text(u8 'Выпустить наличными')
 		if imadd.HotKey('##freebk', config_keys.freebankkey, tLastKeys, 100) then rkeys.changeHotKey(freebankbind, config_keys.freebankkey.v) end imgui.SameLine() imgui.Text(u8 'Выпустить через банк')
 		imgui.EndChild()
 		imgui.SameLine()
-		imgui.BeginChild('##2', imgui.ImVec2(300, 150), true)
+		imgui.BeginChild('##2', imgui.ImVec2(300, 110), true)
+		if imgui.Checkbox(u8 '/members в цвета клистов', cvetmbb) then cfg.main.colormb = cvetmbb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
 		if imgui.Checkbox(u8 'Использовать автоклист', clistbb) then cfg.main.clistb = clistbb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
 		if clistbb.v then
 			imgui.PushItemWidth(50)
@@ -288,8 +293,49 @@ function imgui.OnDrawFrame()
 		if passbb.v then
 			if imgui.InputText(u8 'Ваш пароль', passbuff) then cfg.main.pass = u8:decode(passbuff.v) inicfg.save(config, 'Mayor Helper\\config.ini') end
 		end
+		if imgui.Button(u8 'Команды скрипта', imgui.ImVec2(-0.1, 0)) then cmdwin.v = not cmdwin.v end
 		imgui.EndChild()
 		imgui.End()
+		if cmdwin.v then
+			local btn_size = imgui.ImVec2(-0.1, 0)
+			imgui.SetNextWindowSize(imgui.ImVec2(500, 500), imgui.Cond.FirstUseEver)
+            imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth/2, iScreenHeight/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+			imgui.Begin(u8 'Mayor Helper | Команды', cmdwin)
+			if imgui.CollapsingHeader('/ooplist', btn_size) then
+				imgui.TextWrapped(u8 'Описание: Посмотреть или отправить список ООП')
+				imgui.TextWrapped(u8 'Использование: /ooplist [id(не опционально)]')
+			end
+			if imgui.CollapsingHeader('/g', btn_size) then
+				imgui.TextWrapped(u8 'Описание: Отправить сообщение в гос. новости')
+				imgui.TextWrapped(u8 'Использование:')
+				if imgui.CollapsingHeader('/g forum', btn_size) then
+					imgui.TextWrapped(u8 '/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания!')
+					imgui.TextWrapped(u8 '/gov [City Hall]: На оф. портале штата открыты заявления на должность Заместителя Мэра.')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Подробную информацию вы можете найти на оф. портале мэрии. ')
+				end
+				if imgui.CollapsingHeader('/g forum1', btn_size) then
+					imgui.TextWrapped(u8 '/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания!')
+					imgui.TextWrapped(u8 '/gov [City Hall]: На оф. портале мэрии штата вновь открыты заявления на должность секретарь/охранник.')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Критерии вы можете найти на оф. портале. Ждём вас!')
+				end
+				if imgui.CollapsingHeader('/g chs', btn_size) then
+					imgui.TextWrapped(u8 '/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания!')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Уведомляю вас о том, что была проведена амнистия ЧС Мэрии, это значит, что: Все, кто попадали...')
+					imgui.TextWrapped(u8 '/gov [City Hall]: ...ЧС по каким-либо нарушениям убраны оттуда и получают второй шанс на развитие в мэрии!')
+				end
+				if imgui.CollapsingHeader('/g nabor', btn_size) then
+					imgui.TextWrapped(u8 '/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания!')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Сейчас в стенах Мэрии проходит собеседование на должность Секретаря/Охранника.')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Критерии: Прописка от 8-ми лет в штате, опрятный вид, комлпект лицензий. Ждём вас!')
+				end
+				if imgui.CollapsingHeader('/g pensii', btn_size) then
+					imgui.TextWrapped(u8 '/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания!')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Уведомляю вас о том, что на оф. портале Мэрии снова начала действовать выплата пенсий.')
+					imgui.TextWrapped(u8 '/gov [City Hall]: Для получения пенсии необходимо: проживать в штате от 27-ми лет и оставить заявление. Ждём вас!')
+				end
+			end
+			imgui.End()
+		end
 	end
 end
 function hikeyk()
@@ -391,4 +437,41 @@ function oopCheckDialog()
             end
         end
 	end
+end
+function gov(pam)
+	lua_thread.create(function()
+		if #pam ~= 0 then
+			if pam == 'forum' then
+				SCM('/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания! ')
+				wait(5000)
+				SCM('/gov [City Hall]: На оф. портале штата открыты заявления на должность Заместителя Мэра.')
+				wait(5000)
+				SCM('/gov [City Hall]: Подробную информацию вы можете найти на оф. портале мэрии.')
+			elseif pam == 'forum1' then
+				SCM('/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания!')
+				wait(5000)
+				SCM('/gov [City Hall]: На оф. портале мэрии штата вновь открыты заявления на должность секретарь/охранник.')
+				wait(5000)
+				SCM('/gov [City Hall]: Критерии вы можете найти на оф. портале. Ждём вас! ')
+			elseif pam == 'chs' then
+				SCM('/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания! ')
+				wait(5000)
+				SCM('/gov [City Hall]: Уведомляю вас о том, что была проведена амнистия ЧС Мэрии, это значит, что: Все, кто попадали... ')
+				wait(5000)
+				SCM('/gov [City Hall]: ...ЧС по каким-либо нарушениям убраны оттуда и получают второй шанс на развитие в мэрии! ')
+			elseif pam == 'nabor' then
+				SCM('/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания! ')
+				wait(5000)
+				SCM('/gov [City Hall]: Сейчас в стенах Мэрии проходит собеседование на должность Секретаря/Охранника. ')
+				wait(5000)
+				SCM('/gov [City Hall]: Критерии: Прописка от 8-ми лет в штате, опрятный вид, комлпект лицензий. Ждём вас! ')
+			elseif pam == 'pensii' then
+				SCM('/gov [City Hall]: Добрый день, уважаемые жители и гости штата, минуточку внимания! ')
+				wait(5000)
+				SCM('/gov [City Hall]: Уведомляю вас о том, что на оф. портале Мэрии снова начала действовать выплата пенсий. ')
+				wait(5000)
+				SCM('/gov [City Hall]: Для получения пенсии необходимо: проживать в штате от 27-ми лет и оставить заявление. Ждём вас! ')
+			end
+		end
+	end)
 end
