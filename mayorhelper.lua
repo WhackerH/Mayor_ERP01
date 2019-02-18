@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('1.2')
+script_version('1.3')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -303,7 +303,7 @@ function oopCheckDialog()
                         oopi = oopi + 1
                     end
                 end
-                ftext('Игрок {114D71}'..oopdelnick..'{ffffff} был удален из списка ООП')
+                SCM('Игрок {114D71}'..oopdelnick..'{ffffff} был удален из списка ООП')
             elseif button == 0 then
                 sampShowDialog(2458, '{114D71}Mayor Helper | {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
             end
