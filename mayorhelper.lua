@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('4')
+script_version('5')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -207,10 +207,10 @@ function sp.onShowDialog(id, style, title, button1, button2, text)
 end
 function imgui.OnDrawFrame()
 	if mainwin.v then
-		local clistb = imgui.ImBool(cfg.main.clistb)
+		local clistbb = imgui.ImBool(cfg.main.clistb)
 		local clistint = imgui.ImInt(cfg.main.clist)
-		local passb = imgui.ImBool(cfg.main.passb)
-		local passbuff = imgui.ImBuffer(cfg.main.parol, 256)
+		local passbb = imgui.ImBool(cfg.main.passb)
+		local passbuff = imgui.ImBuffer(u8(cfg.main.pass), 256)
 		local iScreenWidth, iScreenHeight = getScreenResolution()
 		imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
 		imgui.Begin('Mayor Helper', mainwin, imgui.WindowFlags.NoResize)
@@ -222,14 +222,14 @@ function imgui.OnDrawFrame()
 		imgui.EndChild()
 		imgui.SameLine()
 		imgui.BeginChild('##2', imgui.ImVec2(300, 150), true)
-		if imgui.Checkbox(u8 'Использовать автоклист', clistb) then cfg.main.clistb = clistb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
-		if clistb.v then
+		if imgui.Checkbox(u8 'Использовать автоклист', clistbb) then cfg.main.clistb = clistbb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
+		if clistbb.v then
 			imgui.PushItemWidth(50)
 			if imgui.InputInt(u8 'Номер цвета', clistint, 0) then cfg.main.clist = clistint.v inicfg.save(config, 'Mayor Helper\\config.ini') end
 			imgui.PopItemWidth()
 		end
-		if imgui.Checkbox(u8 'Использовать автологин', passb) then cfg.main.passb = passb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
-		if passb.v then
+		if imgui.Checkbox(u8 'Использовать автологин', passbb) then cfg.main.passb = passbb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
+		if passbb.v then
 			if imgui.InputText(u8 'Ваш пароль', passbuff) then cfg.main.pass = u8:decode(passbuff.v) inicfg.save(config, 'Mayor Helper\\config.ini') end
 		end
 		imgui.EndChild()
