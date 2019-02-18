@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('5')
+script_version('6')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -180,6 +180,15 @@ function main()
 	if not doesDirectoryExist('moonloader\\config') then createDirectory('moonloader\\config') end
 	if not doesDirectoryExist('moonloader\\config\\Mayor Helper') then createDirectory('moonloader\\config\\Mayor Helper') end
 	cfg = inicfg.load(config, 'Mayor Helper\\config.ini')
+	if not doesFileExist("moonloader/config/Mayor Helper/keys.json") then
+        local fa = io.open("moonloader/config/Mayor Helper/keys.json", "w")
+        fa:close()
+    else
+        local fa = io.open("moonloader/config/Mayor Helper/keys.json", 'r')
+        if fa then
+            config_keys = decodeJson(fa:read('*a'))
+		end
+	end
 	sampRegisterChatCommand('mhe', function() mainwin.v = not mainwin.v end)
 	sampRegisterChatCommand('ooplist', ooplist)
 	apply_custom_style()
@@ -193,15 +202,47 @@ function main()
 		imgui.Process = mainwin.v
 	end
 end
+function onScriptTerminate(scr)
+	if doesFileExist('moonloader/config/Mayor Helper/keys.json') then
+		os.remove('moonloader/config/Mayor Helper/keys.json')
+	end
+	local fa = io.open("moonloader/config/Mayor Helper/keys.json", "w")
+	if fa then
+		fa:write(encodeJson(config_keys))
+		fa:close()
+	end
+end
 function sp.onServerMessage(color, text)
 	if (text:match('дело на имя .+ рассмотрению не подлежит, ООП') or text:match('дело .+ рассмотрению не подлежит %- ООП.')) and (color == -8224086 or color == -65366) then
         local ooptext = text:match('Mayor, (.+)')
         table.insert(ooplistt, ooptext)
     end
+	if text:find('Рабочий день начат') and color ~= -1 then
+        if cfg.main.clistb then
+            lua_thread.create(function()
+                wait(100)
+                SCM('Цвет ника сменен на: {114D71}'..cfg.main.clist)
+                sampSendChat('/clist '..tonumber(cfg.main.clist))
+                rabden = true
+            end)
+        end
+    end
+    if text:find('Рабочий день окончен') and color ~= -1 then
+        rabden = false
+    end
+end
+function sp.onSendSpawn()
+    if cfg.main.clistb and rabden then
+        lua_thread.create(function()
+            wait(1200)
+            ftext('Цвет ника сменен на: {114D71}' .. cfg.main.clist)
+            sampSendChat('/clist '..cfg.main.clist)
+        end)
+    end
 end
 function sp.onShowDialog(id, style, title, button1, button2, text)
-	if id == 1 and cfg.main.parolb and #cfg.main.parol >= 6 then
-        sampSendDialogResponse(id, 1, _, cfg.main.parol)
+	if id == 1 and cfg.main.passb and #cfg.main.pass >= 6 then
+        sampSendDialogResponse(id, 1, _, cfg.main.pass)
         return false
     end
 end
