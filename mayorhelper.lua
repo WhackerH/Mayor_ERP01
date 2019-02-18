@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('1.1')
+script_version('1.2')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -14,7 +14,7 @@ mainwin = imgui.ImBool(false)
 local clistb = imgui.ImBool(false)
 local clistint = imgui.ImInt(0)
 tLastKeys = {}
-ooplistt = {}
+ooplistt = {'дело на имя Thomas Lawson рассмотрению не подлежит, ООП'}
 config_keys ={
 	hikey = {v = {key.VK_I}},
 	summakey = {v = {key.VK_L}},
@@ -183,6 +183,7 @@ function main()
 	sampRegisterChatCommand('mhe', function() mainwin.v = not mainwin.v end)
 	sampRegisterChatCommand('ooplist', ooplist)
 	apply_custom_style()
+	lua_thread.create(oopCheckDialog)
 	hibind = rkeys.registerHotKey(config_keys.hikey.v, true, hikeyk)
 	summabind = rkeys.registerHotKey(config_keys.summakey.v, true, summakeyk)
 	freenalbind = rkeys.registerHotKey(config_keys.freenalkey.v, true, freenalkeyk)
@@ -287,4 +288,37 @@ function ooplist(pam)
             SCM('Для отправки списка ООП адвокату введите /ooplist [id]')
         end
     end)
+end
+function oopCheckDialog()
+	while true do wait(0)
+		local ooplresult, button, list, input = sampHasDialogRespond(2458)
+        local oopdelresult, button, list, input = sampHasDialogRespond(2459)
+		if oopdelresult then
+            if button == 1 then
+                local oopi = 1
+                while oopi <= #ooplistt do
+                    if ooplistt[oopi]:find(oopdelnick) then
+                        table.remove(ooplistt, oopi)
+                    else
+                        oopi = oopi + 1
+                    end
+                end
+                ftext('Игрок {114D71}'..oopdelnick..'{ffffff} был удален из списка ООП')
+            elseif button == 0 then
+                sampShowDialog(2458, '{114D71}Mayor Helper | {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
+            end
+        end
+        if ooplresult then
+            if button == 1 then
+                local ltext = sampGetListboxItemText(list)
+                if ltext:match("дело на имя .+ рассмотрению не подлежит, ООП") then
+                    oopdelnick = ltext:match("дело на имя (.+) рассмотрению не подлежит, ООП")
+                    sampShowDialog(2459, '{114D71}Mayor Helper | {ffffff}Удаление из ООП', "{ffffff}Вы действительно желаете удалить {114D71}"..oopdelnick.."\n{ffffff}Из списка ООП?", "»", "«", 0)
+                elseif ltext:match("дело .+ рассмотрению не подлежит %- ООП.") then
+                    oopdelnick = ltext:match("дело (.+) рассмотрению не подлежит %- ООП.")
+                    sampShowDialog(2459, '{114D71}Mayor Helper | {ffffff}Удаление из ООП', "{ffffff}Вы действительно желаете удалить {114D71}"..oopdelnick.."\n{ffffff}Из списка ООП?", "»", "«", 0)
+                end
+            end
+        end
+	end
 end
