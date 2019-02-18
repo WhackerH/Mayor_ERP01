@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('3')
+script_version('4')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -11,8 +11,6 @@ encoding = require 'encoding'
 encoding.default = 'CP1251'
 u8 = encoding.UTF8
 mainwin = imgui.ImBool(false)
-local clistb = imgui.ImBool(false)
-local clistint = imgui.ImInt(0)
 tLastKeys = {}
 ooplistt = {}
 config_keys ={
@@ -201,8 +199,18 @@ function sp.onServerMessage(color, text)
         table.insert(ooplistt, ooptext)
     end
 end
+function sp.onShowDialog(id, style, title, button1, button2, text)
+	if id == 1 and cfg.main.parolb and #cfg.main.parol >= 6 then
+        sampSendDialogResponse(id, 1, _, cfg.main.parol)
+        return false
+    end
+end
 function imgui.OnDrawFrame()
 	if mainwin.v then
+		local clistb = imgui.ImBool(cfg.main.clistb)
+		local clistint = imgui.ImInt(cfg.main.clist)
+		local passb = imgui.ImBool(cfg.main.passb)
+		local passbuff = imgui.ImBuffer(cfg.main.parol, 256)
 		local iScreenWidth, iScreenHeight = getScreenResolution()
 		imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
 		imgui.Begin('Mayor Helper', mainwin, imgui.WindowFlags.NoResize)
@@ -219,6 +227,10 @@ function imgui.OnDrawFrame()
 			imgui.PushItemWidth(50)
 			if imgui.InputInt(u8 'Номер цвета', clistint, 0) then cfg.main.clist = clistint.v inicfg.save(config, 'Mayor Helper\\config.ini') end
 			imgui.PopItemWidth()
+		end
+		if imgui.Checkbox(u8 'Использовать автологин', passb) then cfg.main.passb = passb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
+		if passb.v then
+			if imgui.InputText(u8 'Ваш пароль', passbuff) then cfg.main.pass = u8:decode(passbuff.v) inicfg.save(config, 'Mayor Helper\\config.ini') end
 		end
 		imgui.EndChild()
 		imgui.End()
