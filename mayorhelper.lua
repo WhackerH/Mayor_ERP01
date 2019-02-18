@@ -42,7 +42,7 @@ function autoupdate(json_url, prefix, url)
             updateversion = info.latest
             f:close()
             os.remove(json)
-            if updateversion ~= thisScript().version then
+            if updateversion > thisScript().version then
               lua_thread.create(function()
                 local dlstatus = require('moonloader').download_status
                 local color = -1
