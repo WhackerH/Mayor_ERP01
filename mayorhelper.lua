@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('1')
+script_version('1.1')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -252,7 +252,7 @@ function sp.onSendSpawn()
     if cfg.main.clistb and rabden then
         lua_thread.create(function()
             wait(1200)
-            ftext('Цвет ника сменен на: {114D71}' .. cfg.main.clist)
+            SCM('Цвет ника сменен на: {114D71}' .. cfg.main.clist)
             sampSendChat('/clist '..cfg.main.clist)
         end)
     end
