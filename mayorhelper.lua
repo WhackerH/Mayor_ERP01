@@ -1,5 +1,5 @@
 script_name('Mayor Helper')
-script_version('1.1')
+script_version('1.2')
 script_author('Thomas Lawson')
 key = require 'vkeys'
 rkeys = require 'rkeys'
@@ -26,7 +26,9 @@ config = {
 		clistb = false,
 		passb = false,
 		pass = 'pass',
-		colormb = false
+		colormb = false,
+		rtag = '',
+		rtagb = false
 	}
 }
 function autoupdate(json_url, prefix, url)
@@ -172,7 +174,7 @@ function getFreeCost(lvl)
 	if lvl >= 3 and lvl <= 6 then cost = 3000 end
 	if lvl >= 7 and lvl <= 13 then cost = 6000 end
 	if lvl >= 14 and lvl <= 23 then cost = 9000 end
-	if lvl >= 24 and lvl <= 35 then cost = 12000 end
+	if lvl >= 24 and lvl <= 35 then cost = 14000 end
 	if lvl >= 36 then cost = 15000 end
 	return cost
 end
@@ -183,17 +185,20 @@ function main()
 	if not doesDirectoryExist('moonloader\\config\\Mayor Helper') then createDirectory('moonloader\\config\\Mayor Helper') end
 	cfg = inicfg.load(config, 'Mayor Helper\\config.ini')
 	if not doesFileExist("moonloader/config/Mayor Helper/keys.json") then
-        local fa = io.open("moonloader/config/Mayor Helper/keys.json", "w")
-        fa:close()
-    else
-        local fa = io.open("moonloader/config/Mayor Helper/keys.json", 'r')
-        if fa then
-            config_keys = decodeJson(fa:read('*a'))
+    local fa = io.open("moonloader/config/Mayor Helper/keys.json", "w")
+    fa:close()
+  else
+    local fa = io.open("moonloader/config/Mayor Helper/keys.json", 'r')
+    if fa then
+      config_keys = decodeJson(fa:read('*a'))
 		end
 	end
 	sampRegisterChatCommand('mhe', function() mainwin.v = not mainwin.v end)
 	sampRegisterChatCommand('ooplist', ooplist)
 	sampRegisterChatCommand('g', gov)
+	sampRegisterChatCommand('r', r)
+	sampRegisterChatCommand('f', r)
+	sampRegisterChatCommand('rt', rt)
 	apply_custom_style()
 	lua_thread.create(oopCheckDialog)
 	hibind = rkeys.registerHotKey(config_keys.hikey.v, true, hikeyk)
@@ -251,7 +256,7 @@ end
 function sp.onSendSpawn()
     if cfg.main.clistb and rabden then
         lua_thread.create(function()
-            wait(1200)
+            wait(1400)
             SCM('Цвет ника сменен на: {114D71}' .. cfg.main.clist)
             sampSendChat('/clist '..cfg.main.clist)
         end)
@@ -270,7 +275,9 @@ function imgui.OnDrawFrame()
 		local clistint = imgui.ImInt(cfg.main.clist)
 		local passbb = imgui.ImBool(cfg.main.passb)
 		local cvetmbb = imgui.ImBool(cfg.main.colormb)
-		local passbuff = imgui.ImBuffer(u8(cfg.main.pass), 256)
+		local rtagbb = imgui.ImBool(cfg.main.rtagb)
+		local passbuff = imgui.ImBuffer(u8(tostring(cfg.main.pass)), 256)
+		local rtagbuff = imgui.ImBuffer(u8(tostring(cfg.main.rtag)), 256)
 		local iScreenWidth, iScreenHeight = getScreenResolution()
 		imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
 		imgui.Begin('Mayor Helper', mainwin, imgui.WindowFlags.NoResize)
@@ -293,13 +300,17 @@ function imgui.OnDrawFrame()
 		if passbb.v then
 			if imgui.InputText(u8 'Ваш пароль', passbuff) then cfg.main.pass = u8:decode(passbuff.v) inicfg.save(config, 'Mayor Helper\\config.ini') end
 		end
+		if imgui.Checkbox(u8 'Использовать атвотег', rtagbb) then cfg.main.rtagb = rtagbb.v inicfg.save(config, 'Mayor Helper\\config.ini') end
+		if rtagbb.v then
+			if imgui.InputText(u8 'Ваш тэг', rtagbuff) then cfg.main.rtag = u8:decode(rtagbuff.v) inicfg.save(config, 'Mayor Helper\\config.ini') end
+		end
 		if imgui.Button(u8 'Команды скрипта', imgui.ImVec2(-0.1, 0)) then cmdwin.v = not cmdwin.v end
 		imgui.EndChild()
 		imgui.End()
 		if cmdwin.v then
 			local btn_size = imgui.ImVec2(-0.1, 0)
 			imgui.SetNextWindowSize(imgui.ImVec2(500, 500), imgui.Cond.FirstUseEver)
-            imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth/2, iScreenHeight/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+      imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth/2, iScreenHeight/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
 			imgui.Begin(u8 'Mayor Helper | Команды', cmdwin)
 			if imgui.CollapsingHeader('/ooplist', btn_size) then
 				imgui.TextWrapped(u8 'Описание: Посмотреть или отправить список ООП')
@@ -341,7 +352,7 @@ end
 function hikeyk()
 	lua_thread.create(function()
 		sampSendChat(string.format('Приветствую, я адвокат %s. Кто нуждается в моих услугах?', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')))
-		wait(1200)
+		wait(1400)
 		sampSendChat(string.format('/b /showpass %s', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
 	end)
 end
@@ -353,7 +364,7 @@ function summakeyk()
 			if result then
 				local tlvl = sampGetPlayerScore(tid)
 				sampSendChat(string.format('Сумма вашего вызволения составляет %s.', getFreeCost(tlvl)))
-				wait(1200)
+				wait(1400)
 				sampSendChat('Чем желаете оплатить, банком или наличными?')
 			end
 		end
@@ -367,9 +378,9 @@ function freenalkeyk()
 			if result then
 				local tlvl = sampGetPlayerScore(tid)
 				sampSendChat('/me достал бланк из кейса и начал его заполнять')
-				wait(1200)
+				wait(1400)
 				sampSendChat('/me поставил печать в бланке и передал заключенному')
-				wait(1200)
+				wait(1400)
 				sampSendChat(string.format('/free %s 1 %s', tid, getFreeCost(tlvl)))
 			end
 		end
@@ -383,9 +394,9 @@ function freebankkeyk()
 			if result then
 				local tlvl = sampGetPlayerScore(tid)
 				sampSendChat('/me достал бланк из кейса и начал его заполнять')
-				wait(1200)
+				wait(1400)
 				sampSendChat('/me поставил печать в бланке и передал заключенному')
-				wait(1200)
+				wait(1400)
 				sampSendChat(string.format('/free %s 2 %s', tid, getFreeCost(tlvl)))
 			end
 		end
@@ -397,7 +408,7 @@ function ooplist(pam)
         if oopid ~= nil and sampIsPlayerConnected(oopid) then
             for k, v in pairs(ooplistt) do
                 sampSendChat('/sms '..oopid..' '..v)
-                wait(1200)
+                wait(1400)
             end
         else
             sampShowDialog(2458, '{114D71}Mayor Helper | {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
@@ -474,4 +485,22 @@ function gov(pam)
 			end
 		end
 	end)
+end
+function r(pam)
+	if #pam ~= 0 then
+		if cfg.main.rtagb then
+			sampSendChat(('/r [%s] %s'):format(cfg.main.rtag, pam))
+		else
+			sampSendChat(("/r %s"):format(pam))
+		end
+	else
+		SCM("Введите: /r [текст]")
+	end
+end
+function rt(pam)
+	if #pam ~= 0 then
+		sampSendChat(("/r %s"):format(pam))
+	else
+		SCM("Введите: /rt [текст]")
+	end
 end
